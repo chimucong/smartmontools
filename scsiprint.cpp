@@ -2022,10 +2022,13 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
             if ((res = scsiGetSmartData(device, options.smart_vendor_attrib))) {
+                returnval |= HEALTH_FAILED;
                 if (-2 == res)
                     returnval |= FAILSTATUS;
                 else
                     returnval |= FAILSMART;
+            } else {
+                returnval |= HEALTH_PASSED;
             }
         }
         any_output = true;

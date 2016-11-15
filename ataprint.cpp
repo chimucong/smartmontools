@@ -3019,6 +3019,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.smart_auto_save_enable) {
     if (ataEnableAutoSave(device)){
       pout("SMART Enable Attribute Autosave failed: %s\n\n", device->get_errmsg());
+      errmsg = device->get_errmsg();
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     else
@@ -3028,6 +3029,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.smart_auto_save_disable) {
     if (ataDisableAutoSave(device)){
       pout("SMART Disable Attribute Autosave failed: %s\n\n", device->get_errmsg());
+      errmsg = device->get_errmsg();
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     else
@@ -3042,6 +3044,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (need_smart_val) {
     if (ataReadSmartValues(device, &smartval)) {
       pout("Read SMART Data failed: %s\n\n", device->get_errmsg());
+      errmsg = device->get_errmsg();
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
@@ -3050,6 +3053,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       if (options.smart_check_status || options.smart_vendor_attrib) {
         if (ataReadSmartThresholds(device, &smartthres)){
           pout("Read SMART Thresholds failed: %s\n\n", device->get_errmsg());
+          errmsg = device->get_errmsg();
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         else
@@ -3119,6 +3123,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     case 0:
       // The case where the disk health is OK
       pout("SMART overall-health self-assessment test result: PASSED\n");
+      returnval |= HEALTH_PASSED;
       if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 0)) {
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
@@ -3135,6 +3140,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       
     case 1:
       // The case where the disk health is NOT OK
+      returnval |= HEALTH_FAILED;
       print_on();
       pout("SMART overall-health self-assessment test result: FAILED!\n"
            "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");

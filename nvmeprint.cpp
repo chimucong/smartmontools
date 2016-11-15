@@ -425,6 +425,11 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 
     if (options.smart_check_status) {
       print_critical_warning(smart_log.critical_warning);
+      if(!smart_log.critical_warning){
+        retval |= HEALTH_PASSED;
+      } else {
+        retval |= HEALTH_FAILED;
+      }
       if (smart_log.critical_warning)
         retval |= FAILSTATUS;
     }
